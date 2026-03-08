@@ -6,6 +6,20 @@
 
 ---
 
+## Who This Is For
+
+TSVC is built for the **personal assistant model** — one main agent that is your single point of contact for everything.
+
+Instead of switching between a dozen specialized agents for different tasks, you talk to one persistent agent. It handles your finances, your infrastructure, your projects, your research. When it needs deep work done, it spawns specialized sub-agents behind the scenes. You don't manage those. You don't switch to them. Your agent orchestrates.
+
+The problem with this model is that a single agent doing everything accumulates context from everything. Your morning infrastructure debugging pollutes your afternoon trading analysis. By evening, the agent's context is a blended average of every domain it touched that day.
+
+**TSVC gives each topic its own isolated context window** — so your personal assistant can handle 10 different domains without any of them degrading the others. One agent. Many topics. Clean separation.
+
+If you're running a swarm of specialized agents that each handle one thing, you probably don't need this. If you're running one agent that handles *everything* — the way a human assistant would — this is the problem you'll hit, and TSVC is the solution.
+
+---
+
 ## The Problem: Context Rot
 
 A single persistent AI agent session before TSVC:
