@@ -345,6 +345,8 @@ This follows the ACON observation masking research (26-54% token reduction).
 4. **Mem0** (2025) — Scalable long-term memory extraction. Complements TSVC as the shared fact layer between topics.
 5. **Context Rot** (Chroma Research, 2025) — Measured degradation of LLM performance with growing context. TSVC directly addresses this by keeping each topic's context lean.
 6. **Observation Masking** (OpenReview, 2025) — Simple masking matches LLM summarization for agent context management. TSVC applies this at the conversation replay level.
+7. **Anthropic Voice for Claude Code** (2026) — Voice commands for coding agents. Validates domain-specific vocabulary as a first-class concern for voice-to-agent pipelines. TSVC's per-topic transcription vocabulary (`tsvc-vocab.sh`) independently addresses the same problem — context-aware speech recognition that adapts to the active domain.
+8. **Claude Memory Import** (Anthropic, 2026) — Cross-platform memory portability for switching between AI assistants. Solves horizontal context migration (user switching tools). TSVC solves vertical context isolation (one agent, many topics). The intersection — portable topic export/import — is a natural future extension.
 
 ---
 
@@ -372,3 +374,9 @@ TSVC solves this by giving each topic its own context lifecycle. Your trading di
 5. 🧪 Test with real conversations (Alex + Skippster daily use)
 6. 📝 Write publishable blog post / GitHub discussion
 7. 📦 Package as OpenClaw skill for ClawHub
+
+## Future Work
+
+- **Topic Export/Import Schema:** Define a portable format (self-contained JSON/markdown bundle) for migrating topics between OpenClaw instances or sharing topic context with other agents. Inspired by Anthropic's cross-platform memory import — but for topic-scoped context rather than flat conversation history.
+- **Plugin-based Topic Spawn Detection:** Assess whether Tier 2/3 plugin detection should auto-suggest topic spawns when conversation drifts. Currently explicit-only. (Backlog task: `task_87cd98c8c9f57fac`)
+- **Automated Validation Loops:** Per-topic test suites that validate script outputs and task completions — inspired by OpenAI Codex Security's reasoning + validation pattern.
