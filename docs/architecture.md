@@ -141,7 +141,7 @@ Sometimes topics connect. When Topic A (trading) references something from Topic
 
 Each topic maintains a `whisper_prompt` in its Key Facts — a list of domain-specific terms relevant to that topic. On topic boot or switch, the active topic's vocabulary is synced to a shared file and passed to the Whisper API as the `prompt` parameter.
 
-**Why dynamic, not static?** A static vocabulary covering all topics pollutes transcription with unrelated terms that sound similar, causing worse results. With "Drumknott" in the vocab when you're discussing options trading, Whisper might hallucinate that word from similar-sounding audio.
+**Why dynamic, not static?** A static vocabulary covering all topics pollutes transcription with unrelated terms that sound similar, causing worse results. With "Kubernetes" in the vocab when you're discussing options trading, Whisper might hallucinate that word from similar-sounding audio.
 
 ```
 ┌────────────────┐     ┌──────────────────┐     ┌──────────────┐

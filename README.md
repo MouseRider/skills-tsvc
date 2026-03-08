@@ -42,7 +42,8 @@ Result: each active topic gets **nearly the full context window to itself**, not
 - Session file size: 10-340 KB per topic (vs 8.5 MB global)
 - Compactions per topic: **0** (was 21 global)
 - Context loaded on switch: 10-85 KB (vs all 8.5 MB)
-- Total switches recorded: **124+**
+- Topics in production: **13** (active lifecycle management)
+- Total switches recorded: **124+** (collecting more before publish)
 - Switch failure rate: **<1%**
 
 **Switch performance by version:**
@@ -119,6 +120,13 @@ src/
   match-topic.js           — Fuzzy string matching for topic names
   tsvc-boot.sh             — Boot sequence: check pending reset, load topic context
   tsvc-switch.sh           — Switch script: telemetry + state write + self-reset trigger
+  tsvc-spawn.sh            — Topic spawn: create new topic from mid-conversation split
+  tsvc-state.sh            — Per-topic state management (where-are-we.md CRUD)
+  tsvc-vocab.sh            — Topic-scoped transcription vocabulary management
+  tsvc-transcribe.sh       — Whisper API wrapper with topic-aware vocabulary
+  tsvc-log.sh              — Unified logging for all TSVC scripts
+  tsvc-route-async.sh      — Route async sub-agent results to correct topic
+  submind-result-router.sh — Sub-agent completion routing via board tags
   self-reset.sh            — Session deletion (background, called by tsvc-switch.sh)
 
 exchange-logger/
@@ -152,6 +160,9 @@ Moving topic detection from the LLM prompt to a gateway plugin (deterministic fu
 
 ### The Exchange Logger Runs Once Wrong
 On first run, the exchange logger will dump all historical exchanges from the current session into whichever topic is active. This is permanent — you can't re-attribute historical exchanges. **Run the exchange logger before the session accumulates significant history.**
+
+### Topic Spawn: Splitting Conversations Mid-Flight
+Users don't always start a new topic with a fresh message — discussions drift. Topic spawn lets the agent identify where a new discussion semantically started within the current conversation, create a new topic, and **move** (not copy) the relevant exchanges to it. The semantic boundary detection stays on the LLM (judgment call), while everything else — topic creation, exchange migration, index updates, context refresh — runs deterministically via `tsvc-spawn.sh`.
 
 ---
 
