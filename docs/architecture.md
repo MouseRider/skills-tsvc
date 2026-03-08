@@ -1,7 +1,7 @@
 # Topic-Scoped Virtual Context (TSVC)
 ## A Per-Topic Context Isolation Architecture for Long-Running AI Agents
 
-**Author:** Agent (with the developer)
+**Author:** Skippster (with Alex T)
 **Date:** 2026-02-28
 **Status:** Design → Implementation
 
@@ -109,7 +109,7 @@ When a topic switch is detected:
 
 ### 3. Per-Topic Compaction
 
-Here's the key insight from the developer: **compaction should happen per-topic, not globally.**
+Here's the key insight from Alex: **compaction should happen per-topic, not globally.**
 
 When a single topic's conversation grows too large for the context budget:
 - Compact ONLY that topic's conversation history
@@ -141,7 +141,7 @@ Sometimes topics connect. When Topic A (trading) references something from Topic
 
 Each topic maintains a `whisper_prompt` in its Key Facts — a list of domain-specific terms relevant to that topic. On topic boot or switch, the active topic's vocabulary is synced to a shared file and passed to the Whisper API as the `prompt` parameter.
 
-**Why dynamic, not static?** A static vocabulary covering all topics pollutes transcription with unrelated terms that sound similar, causing worse results. With "Majordomo" in the vocab when you're discussing options trading, Whisper might hallucinate that word from similar-sounding audio.
+**Why dynamic, not static?** A static vocabulary covering all topics pollutes transcription with unrelated terms that sound similar, causing worse results. With "Drumknott" in the vocab when you're discussing options trading, Whisper might hallucinate that word from similar-sounding audio.
 
 ```
 ┌────────────────┐     ┌──────────────────┐     ┌──────────────┐
@@ -178,14 +178,49 @@ Each topic maintains a living `where-are-we.md` file with structured sections:
 
 Managed by `tsvc-state.sh` (show, append, complete, finalize, clear-notifications).
 
-### 9. Topic Awareness in Hot Context
+### 9. Topic Spawn (Mid-Conversation Split)
 
-The hot context (auto-maintained per topic) includes an **Other Topics** section listing all paged topics with one-line summaries. This gives the agent ambient awareness of the full topic landscape without loading any paged context. The agent can:
-- Reference other topics by name when relevant
-- Suggest topic switches when a conversation drifts
-- Understand cross-topic relationships
+When a conversation drifts into a genuinely new subject, the user can explicitly request a topic spawn: *"Make this a new topic called X"* or *"Split this discussion into its own topic."*
 
-Summaries are stored in `topic_files/index.json` and rendered into hot context on every refresh (triggered by appends and decisions).
+**Protocol:**
+
+1. **Trigger:** Explicit user request only (no auto-detection — future assessment in backlog)
+2. **Semantic boundary:** The LLM scans `conversation.jsonl` backwards to find where the new discussion semantically started. This is a judgment call — no heuristic can reliably detect topic drift inflection points.
+3. **Name:** User-provided, or LLM asks unless it's obvious from context
+4. **Execute:** `tsvc-spawn.sh "<title>" <from_line>`
+   - Creates new topic via `tsvc-manager.js create`
+   - **Moves** exchanges from `from_line` onward (not copies — exchanges belong to one topic)
+   - Updates exchange counts in `index.json`
+   - Refreshes both topics' context files
+5. **Switch:** Normal self-reset triggered → user's next message lands in the new topic
+
+```
+User: "This is a new topic — create 'GPU Troubleshooting'"
+         │
+         ▼
+┌─────────────────────┐
+│ LLM: scan exchanges │──▶ "Line 47 is where GPU talk started"
+│ for semantic boundary│
+└─────────┬───────────┘
+          │
+          ▼
+┌─────────────────────┐
+│ tsvc-spawn.sh       │──▶ Create topic, move lines 47+,
+│ "GPU Troubleshoot"  │    update counts, refresh contexts
+│ 47                  │
+└─────────┬───────────┘
+          │
+          ▼
+┌─────────────────────┐
+│ Self-reset           │──▶ Next message → fresh session
+│ (delete + wait)      │    with new topic loaded
+└─────────────────────┘
+```
+
+**Design decisions:**
+- Exchanges are **moved**, not copied (one topic owns each exchange)
+- LLM handles boundary detection (judgment), script handles everything else (deterministic)
+- No plugin/Tier 2-3 detection yet — explicit requests only
 
 ### 10. Async Result Routing
 
@@ -221,6 +256,7 @@ Sub-agent completions route to the correct topic via board task `topic:` tags:
 - Per-topic state management (`tsvc-state.sh`)
 - Async result routing (sub-agent → board tags → paged topic)
 - Topic-scoped transcription vocabulary (`tsvc-vocab.sh` + `tsvc-transcribe.sh`)
+- Topic spawn (mid-conversation split) via `tsvc-spawn.sh`
 - Full script audit: zero orphans, zero dangling references
 
 ### Phase 5: Publication & Sharing (In Progress)
@@ -249,16 +285,16 @@ Sub-agent completions route to the correct topic via board task `topic:` tags:
   - Set up NotebookLM for analysis
 
 ### Recent Conversation (last 15 exchanges)
-**the developer** (17:04): Check on the TWA transcription progress
+**Alex** (17:04): Check on the TWA transcription progress
 **Skip** (17:04): 12/58 done. Batch script running clean. First video analyzed — Iron Condor strategy from Coach Baylor. Want me to pick up the pace or review quality first?
-**the developer** (17:05): Review quality first, then speed up
+**Alex** (17:05): Review quality first, then speed up
 **Skip** (17:05): On it. Pulling the first transcript for a quality pass...
 [...]
 
 ### Decisions
 - 2026-02-27: Use Whisper API with custom prompt (not local Whisper)
 - 2026-02-27: Delete audio after transcription
-- 2026-02-27: Sonnet/Opus only for analysis (no Haiku — the developer's rule)
+- 2026-02-27: Sonnet/Opus only for analysis (no Haiku — Alex's rule)
 
 ### Related Topics
 - Trading Agent (proj_a505c14ee3ac094e) — TWA feeds into this
@@ -267,7 +303,7 @@ Sub-agent completions route to the correct topic via board task `topic:` tags:
 
 ### How Many Exchanges to Save
 
-This is configurable (the developer wants to experiment):
+This is configurable (Alex wants to experiment):
 - **Default: 15 exchanges** (~3-5k tokens depending on verbosity)
 - **Minimum: 5 exchanges** (enough to resume thread)
 - **Maximum: 30 exchanges** (for complex technical discussions)
@@ -333,6 +369,6 @@ TSVC solves this by giving each topic its own context lifecycle. Your trading di
 2. 🔨 Build `tsvc-manager.js` core engine
 3. 🔨 Update AGENTS.md with TSVC boot/switch instructions
 4. 🔨 Create topic_files/ structure with index
-5. 🧪 Test with real conversations (the developer + Agent daily use)
+5. 🧪 Test with real conversations (Alex + Skippster daily use)
 6. 📝 Write publishable blog post / GitHub discussion
 7. 📦 Package as OpenClaw skill for ClawHub
