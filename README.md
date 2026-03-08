@@ -56,8 +56,9 @@ Result: each active topic gets **nearly the full context window to itself**, not
 - Session file size: 10-340 KB per topic (vs 8.5 MB global)
 - Compactions per topic: **0** (was 21 global)
 - Context loaded on switch: 10-85 KB (vs all 8.5 MB)
-- Topics in production: **13** (active lifecycle management)
-- Total switches recorded: **124+** (collecting more before publish)
+- Topics in production: **12** (active lifecycle management)
+- Total switches recorded: **126**
+- Exchanges tracked: **3,735**
 - Switch failure rate: **<1%**
 
 **Switch performance by version:**
@@ -198,7 +199,7 @@ Users don't always start a new topic with a fresh message — discussions drift.
 Built and running in production (a persistent AI agent on OpenClaw). **Not a framework — a pattern and reference implementation.** The core concepts work. The implementation is OpenClaw-specific. Porting to other agent runtimes requires adapting the session reset mechanism.
 
 **Still needs:**
-- Investigation of the 16-minute anomaly (1 out of 124 switches)
+- Investigation of the 16-minute anomaly (1 out of 126 switches)
 - Decision to keep Lobster workflows or simplify to pure bash
 - Semantic thread detection (smarter context loading based on what the conversation was *about*, not just last N exchanges)
 
@@ -280,4 +281,4 @@ This entire system — concept, architecture, implementation, telemetry, documen
 
 It also did the git hygiene. Twice.
 
-*Built Feb 25 – Mar 7, 2026 using [OpenClaw](https://openclaw.ai).*
+*Built Feb 25 – Mar 8, 2026 using [OpenClaw](https://openclaw.ai).*
