@@ -106,7 +106,7 @@ V2 → V3: **77% reduction in median switch time.** Moving detection from the LL
 4. User's next message triggers fresh session → `tsvc-boot.sh` loads pending topic context
 5. Agent responds with full topic context, no cross-topic contamination
 
-> **Version history:** TSVC went through three versions in 10 days. V1 (Feb 28 – Mar 3) used in-agent detection with `sessions_send /reset`, which deadlocked. V2 (Mar 3 – Mar 6) used agent detection + background `self-reset.sh`, with a median switch time of 140s. V3 (Mar 6+) moved detection to a gateway plugin, cutting median switch time to 31s — a 77% improvement. See [telemetry-results.md](docs/telemetry-results.md) for the full versioned breakdown.
+> **Version history:** TSVC went through three versions in 10 days. V1 (Feb 28 – Mar 3) used in-agent detection with `sessions_send /reset`, which deadlocked. V2 (Mar 3 – Mar 6) used agent detection + background `self-reset.sh`, with a median switch time of 140s. V3 (Mar 6+) moved detection to a gateway plugin, cutting median switch time to 31s — a 77% improvement.
 
 ---
 
@@ -115,12 +115,7 @@ V2 → V3: **77% reduction in median switch time.** Moving detection from the LL
 ```
 docs/
   architecture.md          — Full system design
-  dev-journal.md           — Complete development history + Lessons Learned
-  FINDINGS.md              — Master findings doc (start here)
-  telemetry-results.md     — Raw numbers: switch timing, context sizes, success rates
-  full-conversation-timeline.md — Chronological narrative of how TSVC evolved
   references.md            — Academic papers, industry posts, historical references
-  blog-post-outline.md     — Material for blog post
   design-decisions.md      — Key design decision log (pre-decision-dependency system)
   protocol.md              — Operational protocol for running TSVC
   integration.md           — How to integrate TSVC into an existing agent
@@ -165,7 +160,7 @@ template/
 ## Key Discoveries
 
 ### The Self-Reset Deadlock
-An agent cannot reset its own session from within its own turn. Every intuitive approach deadlocks. The only working pattern: **delete the session files; let the user's next message trigger a fresh session.** See [dev-journal.md](docs/dev-journal.md#self-reset-deadlock-fix) for the full failure history.
+An agent cannot reset its own session from within its own turn. Every intuitive approach deadlocks. The only working pattern: **delete the session files; let the user's next message trigger a fresh session.**
 
 ### Decisions Need Causality, Not Just Content
 Storing WHAT was decided isn't enough. Storing WHY prevents the "I contradicted past-me" failure mode. The decision dependency chain (`dec_A depends_on dec_B`) is the highest-ROI addition to the system.
