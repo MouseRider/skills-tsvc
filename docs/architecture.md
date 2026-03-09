@@ -1,7 +1,7 @@
 # Topic-Scoped Virtual Context (TSVC)
 ## A Per-Topic Context Isolation Architecture for Long-Running AI Agents
 
-**Author:** Skippster (with Alex T)
+**Author:** Agent with guidance from Alex
 **Date:** 2026-02-28
 **Status:** Design → Implementation
 
